@@ -4,3 +4,5 @@ target/
 .vscode/
 .DS_Store
 scripts/
+docs/test-input.txt
+/运行效果.png

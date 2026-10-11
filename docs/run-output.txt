@@ -1,36 +1,119 @@
-========== 1. 保存数据 (save) ==========
-save 学院: 1 行 -> College{id='1', name='计算机学院', code='CS'}
-save 学院: 1 行 -> College{id='2', name='数学学院', code='MATH'}
-save 学生: 1 行 -> Student{id='1', name='张三', major='软件工程', age=20, enrollDate=2023-09-01, graduated=false, tuition=12000.00}
-save 学生: 1 行 -> Student{id='2', name='李四', major='计算机科学', age=21, enrollDate=2022-09-01, graduated=false, tuition=11000.00}
-save 学生: 1 行 -> Student{id='3', name='王五', major='人工智能', age=22, enrollDate=2021-09-01, graduated=true, tuition=13000.00}
 
-========== 2. 查询全部 (resultSetToList) ==========
-学院表记录数: 2
-College{id='1', name='计算机学院', code='CS'}
-College{id='2', name='数学学院', code='MATH'}
-学生表记录数: 3
+========== JDBCTool 增删改查 ==========
+请选择要操作的数据表：
+  1. 学生表 student
+  2. 学院表 college
+  0. 退出程序
+请输入选项：
+---- 学生表 student 操作 ----
+  1. 新增学生 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学生 update
+  5. 删除学生 delete
+  0. 返回上一级
+请输入选项：id：姓名 name：专业 major：年龄 age：入学时间 enrollDate(yyyy-MM-dd)：是否毕业 graduated(true/false)：学费 tuition：新增成功，影响 1 行：Student{id='1', name='张三', major='软件工程', age=20, enrollDate=2023-09-01, graduated=false, tuition=12000}
+
+---- 学生表 student 操作 ----
+  1. 新增学生 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学生 update
+  5. 删除学生 delete
+  0. 返回上一级
+请输入选项：学生表记录数：1
 Student{id='1', name='张三', major='软件工程', age=20, enrollDate=2023-09-01, graduated=false, tuition=12000.00}
-Student{id='2', name='李四', major='计算机科学', age=21, enrollDate=2022-09-01, graduated=false, tuition=11000.00}
-Student{id='3', name='王五', major='人工智能', age=22, enrollDate=2021-09-01, graduated=true, tuition=13000.00}
 
-========== 3. 按主键查询 (getOneById) ==========
-id=1 的学生: Student{id='1', name='张三', major='软件工程', age=20, enrollDate=2023-09-01, graduated=false, tuition=12000.00}
-id=2 的学院: College{id='2', name='数学学院', code='MATH'}
+---- 学生表 student 操作 ----
+  1. 新增学生 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学生 update
+  5. 删除学生 delete
+  0. 返回上一级
+请输入选项：请输入要查询的学生 id：Student{id='1', name='张三', major='软件工程', age=20, enrollDate=2023-09-01, graduated=false, tuition=12000.00}
 
-========== 4. 更新数据 (update) ==========
-update 学生: 1 行 -> Student{id='1', name='张三', major='软件工程', age=21, enrollDate=2023-09-01, graduated=false, tuition=15000.00}
-更新后 id=1: Student{id='1', name='张三', major='软件工程', age=21, enrollDate=2023-09-01, graduated=false, tuition=15000.00}
+---- 学生表 student 操作 ----
+  1. 新增学生 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学生 update
+  5. 删除学生 delete
+  0. 返回上一级
+请输入选项：请输入要修改的学生 id：新的姓名 name：新的专业 major：新的年龄 age：新的入学时间 enrollDate(yyyy-MM-dd)：新的是否毕业 graduated(true/false)：新的学费 tuition：修改完成，影响 1 行：Student{id='1', name='张三', major='软件工程', age=21, enrollDate=2023-09-01, graduated=false, tuition=15000}
 
-========== 5. 删除数据 (delete) ==========
-delete 学生: 1 行 -> id=3
-delete 学院: 1 行 -> id=2
-
-========== 6. 删除后再次查询 ==========
-学生表记录数: 2
+---- 学生表 student 操作 ----
+  1. 新增学生 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学生 update
+  5. 删除学生 delete
+  0. 返回上一级
+请输入选项：学生表记录数：1
 Student{id='1', name='张三', major='软件工程', age=21, enrollDate=2023-09-01, graduated=false, tuition=15000.00}
-Student{id='2', name='李四', major='计算机科学', age=21, enrollDate=2022-09-01, graduated=false, tuition=11000.00}
-学院表记录数: 1
+
+---- 学生表 student 操作 ----
+  1. 新增学生 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学生 update
+  5. 删除学生 delete
+  0. 返回上一级
+请输入选项：请输入要删除的学生 id：删除完成，影响 1 行。
+
+---- 学生表 student 操作 ----
+  1. 新增学生 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学生 update
+  5. 删除学生 delete
+  0. 返回上一级
+请输入选项：学生表记录数：0
+
+---- 学生表 student 操作 ----
+  1. 新增学生 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学生 update
+  5. 删除学生 delete
+  0. 返回上一级
+请输入选项：
+========== JDBCTool 增删改查 ==========
+请选择要操作的数据表：
+  1. 学生表 student
+  2. 学院表 college
+  0. 退出程序
+请输入选项：
+---- 学院表 college 操作 ----
+  1. 新增学院 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学院 update
+  5. 删除学院 delete
+  0. 返回上一级
+请输入选项：id：学院名称 name：学院代码 code：新增成功，影响 1 行：College{id='1', name='计算机学院', code='CS'}
+
+---- 学院表 college 操作 ----
+  1. 新增学院 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学院 update
+  5. 删除学院 delete
+  0. 返回上一级
+请输入选项：学院表记录数：1
 College{id='1', name='计算机学院', code='CS'}
 
-========== 全部操作执行完成 ==========
+---- 学院表 college 操作 ----
+  1. 新增学院 save
+  2. 查询全部 resultSetToList
+  3. 按 id 查询 getOneById
+  4. 修改学院 update
+  5. 删除学院 delete
+  0. 返回上一级
+请输入选项：
+========== JDBCTool 增删改查 ==========
+请选择要操作的数据表：
+  1. 学生表 student
+  2. 学院表 college
+  0. 退出程序
+请输入选项：程序结束。
