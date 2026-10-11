@@ -1,0 +1,36 @@
+========== 1. 保存数据 (save) ==========
+save 学院: 1 行 -> College{id='1', name='计算机学院', code='CS'}
+save 学院: 1 行 -> College{id='2', name='数学学院', code='MATH'}
+save 学生: 1 行 -> Student{id='1', name='张三', major='软件工程', age=20, enrollDate=2023-09-01, graduated=false, tuition=12000.00}
+save 学生: 1 行 -> Student{id='2', name='李四', major='计算机科学', age=21, enrollDate=2022-09-01, graduated=false, tuition=11000.00}
+save 学生: 1 行 -> Student{id='3', name='王五', major='人工智能', age=22, enrollDate=2021-09-01, graduated=true, tuition=13000.00}
+
+========== 2. 查询全部 (resultSetToList) ==========
+学院表记录数: 2
+College{id='1', name='计算机学院', code='CS'}
+College{id='2', name='数学学院', code='MATH'}
+学生表记录数: 3
+Student{id='1', name='张三', major='软件工程', age=20, enrollDate=2023-09-01, graduated=false, tuition=12000.00}
+Student{id='2', name='李四', major='计算机科学', age=21, enrollDate=2022-09-01, graduated=false, tuition=11000.00}
+Student{id='3', name='王五', major='人工智能', age=22, enrollDate=2021-09-01, graduated=true, tuition=13000.00}
+
+========== 3. 按主键查询 (getOneById) ==========
+id=1 的学生: Student{id='1', name='张三', major='软件工程', age=20, enrollDate=2023-09-01, graduated=false, tuition=12000.00}
+id=2 的学院: College{id='2', name='数学学院', code='MATH'}
+
+========== 4. 更新数据 (update) ==========
+update 学生: 1 行 -> Student{id='1', name='张三', major='软件工程', age=21, enrollDate=2023-09-01, graduated=false, tuition=15000.00}
+更新后 id=1: Student{id='1', name='张三', major='软件工程', age=21, enrollDate=2023-09-01, graduated=false, tuition=15000.00}
+
+========== 5. 删除数据 (delete) ==========
+delete 学生: 1 行 -> id=3
+delete 学院: 1 行 -> id=2
+
+========== 6. 删除后再次查询 ==========
+学生表记录数: 2
+Student{id='1', name='张三', major='软件工程', age=21, enrollDate=2023-09-01, graduated=false, tuition=15000.00}
+Student{id='2', name='李四', major='计算机科学', age=21, enrollDate=2022-09-01, graduated=false, tuition=11000.00}
+学院表记录数: 1
+College{id='1', name='计算机学院', code='CS'}
+
+========== 全部操作执行完成 ==========
