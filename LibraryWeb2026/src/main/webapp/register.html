@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册 - 图书馆管理系统</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-box" style="width: 460px;">
+    <h1>用户注册</h1>
+    <div class="subtitle">请填写基本信息，不同角色需填写不同的资料</div>
+    <div class="field">
+      <label>姓名（用户名）</label>
+      <input id="name" type="text" placeholder="请输入姓名">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input id="password" type="password" placeholder="请输入密码">
+    </div>
+    <div class="field">
+      <label>手机号</label>
+      <input id="phone" type="text" placeholder="请输入11位手机号">
+    </div>
+    <div class="field">
+      <label>专业</label>
+      <input id="major" type="text" placeholder="请输入专业">
+    </div>
+    <div class="field">
+      <label>角色</label>
+      <select id="role">
+        <option value="学生">学生</option>
+        <option value="教师">教师</option>
+        <option value="操作员">操作员</option>
+        <option value="管理员">管理员</option>
+      </select>
+    </div>
+    <div id="studentFields" class="role-fields">
+      <div class="field"><label>年级</label><input id="grade" type="text" placeholder="如：2022级"></div>
+      <div class="field"><label>所属学院</label><input id="college" type="text" placeholder="如：计算机学院"></div>
+    </div>
+    <div id="teacherFields" class="role-fields" style="display:none;">
+      <div class="field"><label>所属学院</label><input id="tCollege" type="text" placeholder="如：信息学院"></div>
+      <div class="field"><label>职称</label><input id="title" type="text" placeholder="如：教授"></div>
+    </div>
+    <div id="operatorFields" class="role-fields" style="display:none;">
+      <div class="field"><label>职务</label><input id="duty" type="text" placeholder="如：图书管理员"></div>
+      <div class="field"><label>负责区域</label><input id="area" type="text" placeholder="如：一楼"></div>
+    </div>
+    <div id="adminFields" class="role-fields" style="display:none;">
+      <div class="field"><label>权限等级</label><input id="permissionLevel" type="number" placeholder="如：1"></div>
+      <div class="field"><label>入职时间</label><input id="entryTime" type="date"></div>
+    </div>
+    <div class="error-tip" id="tip"></div>
+    <div class="btn-row">
+      <button class="btn" id="submitBtn">注册</button>
+      <button class="btn secondary" id="resetBtn">重置</button>
+    </div>
+    <p class="hint">已有账号？<a class="link" href="login.html">去登录</a></p>
+  </div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/register.js"></script>
+</body>
+</html>

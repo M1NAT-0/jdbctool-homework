@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图书馆管理系统 - 首页</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app" v-cloak>
+  <header class="topbar">
+    <div class="brand">📚 图书馆管理系统 LibraryWeb2026</div>
+    <div class="user" v-if="me">
+      <span>{{ me.name }}</span>
+      <span class="badge">{{ me.role }}</span>
+      <button class="btn small secondary" @click="logout">退出登录</button>
+    </div>
+  </header>
+
+  <div class="layout" v-if="me">
+    <aside class="sidebar">
+      <div v-for="m in menu" :key="m.key" class="menu-card" :class="{active: currentView === m.key}" @click="openView(m.key)">
+        {{ m.label }}
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- 用户信息查询（管理员） -->
+      <section v-if="currentView === 'userQuery'" class="panel">
+        <h2>用户信息查询</h2>
+        <div class="toolbar">
+          <input v-model="userKeyword" placeholder="姓名 / 手机号 / 角色 / 专业" @keyup.enter="queryUsers">
+          <button class="btn" @click="queryUsers">查询</button>
+        </div>
+        <p v-if="users === null" class="empty">请输入关键字进行查询（默认不显示用户数据）</p>
+        <table v-else>
+          <thead><tr><th>姓名</th><th>角色</th><th>手机号</th><th>专业</th><th>创建时间</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr v-for="u in users" :key="u.id">
+              <td>{{ u.name }}</td>
+              <td>{{ u.role }}</td>
+              <td>{{ u.phone }}</td>
+              <td>{{ u.major }}</td>
+              <td>{{ u.createTime }}</td>
+              <td><button class="btn small" @click="showUser(u)">查看</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 借阅记录查询（管理员） -->
+      <section v-if="currentView === 'loanRecordQuery'" class="panel">
+        <h2>借阅记录查询</h2>
+        <div class="tabs">
+          <button :class="{active: adminLoanMode === 'keyword'}" @click="adminLoanMode = 'keyword'">关键字查询</button>
+          <button :class="{active: adminLoanMode === 'overdue'}" @click="adminLoanMode = 'overdue'">超期的借阅</button>
+          <button :class="{active: adminLoanMode === 'range'}" @click="adminLoanMode = 'range'">日期范围查询</button>
+        </div>
+        <div class="toolbar">
+          <template v-if="adminLoanMode !== 'range'">
+            <input v-model="adminLoanKeyword" :placeholder="adminLoanMode === 'overdue' ? '关键字（可空）' : '用户名或图书名'">
+            <button class="btn" @click="loadAdminLoans">查询</button>
+          </template>
+          <template v-else>
+            <input type="datetime-local" v-model="adminStart"> 至
+            <input type="datetime-local" v-model="adminEnd">
+            <button class="btn" @click="loadAdminLoans">查询</button>
+          </template>
+        </div>
+        <table v-if="adminLoans">
+          <thead><tr><th>用户</th><th>图书</th><th>借书时间</th><th>应还时间</th><th>还书时间</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr v-for="l in adminLoans" :key="l.id">
+              <td>{{ l.userName }}</td>
+              <td>{{ l.bookTitle }}</td>
+              <td>{{ l.borrowDate }}</td>
+              <td>{{ l.dueDate }}</td>
+              <td>{{ l.returnDate || '-' }}</td>
+              <td><span class="tag" :class="statusClass(l)">{{ statusText(l) }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 借阅数据统计（管理员） -->
+      <section v-if="currentView === 'loanStats'" class="panel">
+        <h2>借阅数据统计</h2>
+        <div class="toolbar"><button class="btn" @click="loadStats">加载统计</button></div>
+        <h3>按图书类型归集统计（每种类型的借阅次数）</h3>
+        <table>
+          <thead><tr><th>图书类型</th><th>借阅次数</th></tr></thead>
+          <tbody><tr v-for="s in typeStats" :key="s.name"><td>{{ s.name }}</td><td>{{ s.cnt }}</td></tr></tbody>
+        </table>
+        <h3>按用户专业归集统计</h3>
+        <table>
+          <thead><tr><th>专业</th><th>借阅次数</th></tr></thead>
+          <tbody><tr v-for="s in majorStats" :key="s.name"><td>{{ s.name }}</td><td>{{ s.cnt }}</td></tr></tbody>
+        </table>
+      </section>
+
+      <!-- 添加书籍（操作员） -->
+      <section v-if="currentView === 'addBook'" class="panel">
+        <h2>添加书籍</h2>
+        <div class="form-grid">
+          <div class="field"><label>书名</label><input v-model="addForm.title"></div>
+          <div class="field"><label>作者</label><input v-model="addForm.author"></div>
+          <div class="field"><label>类型</label><input v-model="addForm.type" placeholder="如：计算机"></div>
+          <div class="field"><label>出版社</label><input v-model="addForm.publisher"></div>
+          <div class="field"><label>还书期限（天）</label><input type="number" v-model.number="addForm.days"></div>
+          <div class="field"><label>价格</label><input type="number" v-model.number="addForm.price"></div>
+          <div class="field"><label>库存（自动生成副本数）</label><input type="number" v-model.number="addForm.stock"></div>
+          <div class="field full"><label>图书简介</label><input v-model="addForm.introduction"></div>
+        </div>
+        <div class="btn-row"><button class="btn" @click="addBook">添加图书</button></div>
+        <h3>所有图书列表</h3>
+        <table>
+          <thead><tr><th>书名</th><th>作者</th><th>类型</th><th>出版社</th><th>期限</th><th>价格</th><th>库存</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr v-for="b in books" :key="b.id">
+              <td>{{ b.title }}</td><td>{{ b.author }}</td><td>{{ b.type }}</td><td>{{ b.publisher }}</td>
+              <td>{{ b.days }}</td><td>{{ b.price }}</td><td>{{ b.stock }}</td>
+              <td><span class="tag" :class="b.status === '已废弃' ? 'discarded' : 'normal'">{{ b.status }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 查看所有书籍（操作员） -->
+      <section v-if="currentView === 'viewAllBooks'" class="panel">
+        <h2>查询书籍</h2>
+        <div class="toolbar">
+          <input v-model="bookKeyword" placeholder="输入关键字模糊查询（留空查全部）" @keyup.enter="loadBooks">
+          <button class="btn" @click="loadBooks">查询</button>
+        </div>
+        <table>
+          <thead><tr><th>书名</th><th>作者</th><th>类型</th><th>出版社</th><th>期限</th><th>价格</th><th>库存</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr v-for="b in books" :key="b.id">
+              <td>{{ b.title }}</td><td>{{ b.author }}</td><td>{{ b.type }}</td><td>{{ b.publisher }}</td>
+              <td>{{ b.days }}</td><td>{{ b.price }}</td><td>{{ b.stock }}</td>
+              <td><span class="tag" :class="b.status === '已废弃' ? 'discarded' : 'normal'">{{ b.status }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 废弃图书（操作员） -->
+      <section v-if="currentView === 'discardBook'" class="panel">
+        <h2>废弃图书</h2>
+        <div class="toolbar"><button class="btn" @click="loadBooks">刷新列表</button></div>
+        <table>
+          <thead><tr><th>书名</th><th>类型</th><th>库存</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr v-for="b in books" :key="b.id">
+              <td>{{ b.title }}</td><td>{{ b.type }}</td><td>{{ b.stock }}</td>
+              <td><span class="tag" :class="b.status === '已废弃' ? 'discarded' : 'normal'">{{ b.status }}</span></td>
+              <td><button class="btn small danger" :disabled="b.status === '已废弃'" @click="discardBook(b)">废弃</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 编辑图书（操作员） -->
+      <section v-if="currentView === 'editBook'" class="panel">
+        <h2>编辑图书</h2>
+        <div class="toolbar"><button class="btn" @click="loadBooks">刷新列表</button></div>
+        <table>
+          <thead><tr><th>书名</th><th>作者</th><th>类型</th><th>出版社</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr v-for="b in books" :key="b.id">
+              <td>{{ b.title }}</td><td>{{ b.author }}</td><td>{{ b.type }}</td><td>{{ b.publisher }}</td>
+              <td><button class="btn small" @click="startEditBook(b)">编辑</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-if="editBookId" class="form-grid" style="margin-top:18px;">
+          <div class="field"><label>书名</label><input v-model="editForm.title"></div>
+          <div class="field"><label>作者</label><input v-model="editForm.author"></div>
+          <div class="field"><label>类型</label><input v-model="editForm.type"></div>
+          <div class="field"><label>出版社</label><input v-model="editForm.publisher"></div>
+          <div class="field"><label>还书期限（天）</label><input type="number" v-model.number="editForm.days"></div>
+          <div class="field"><label>价格</label><input type="number" v-model.number="editForm.price"></div>
+        </div>
+        <div v-if="editBookId" class="btn-row"><button class="btn" @click="saveEditBook">保存修改</button></div>
+      </section>
+
+      <!-- 图书副本编辑（操作员） -->
+      <section v-if="currentView === 'bookCopyEdit'" class="panel">
+        <h2>图书副本编辑</h2>
+        <div class="toolbar">
+          <select v-model="copyBookId" @change="loadCopies">
+            <option :value="null" disabled>请选择图书</option>
+            <option v-for="b in books" :key="b.id" :value="b.id">{{ b.title }}</option>
+          </select>
+          <button class="btn" :disabled="!copyBookId" @click="addCopy">新增副本</button>
+        </div>
+        <table v-if="copies.length">
+          <thead><tr><th>副本ID</th><th>借阅状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr v-for="c in copies" :key="c.id">
+              <td>{{ c.id }}</td>
+              <td>{{ c.borrowed ? '已借出' : '未借阅' }}</td>
+              <td><button class="btn small danger" :disabled="c.borrowed" @click="deleteCopy(c)">删除</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else class="empty">请选择图书后查看副本</p>
+      </section>
+
+      <!-- 借书（所有角色） -->
+      <section v-if="currentView === 'borrow'" class="panel">
+        <h2>借书</h2>
+        <h3>可借阅的图书列表</h3>
+        <table>
+          <thead><tr><th>书名</th><th>作者</th><th>类型</th><th>出版社</th><th>可借副本</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr v-for="b in borrowable" :key="b.id">
+              <td>{{ b.title }}</td><td>{{ b.author }}</td><td>{{ b.type }}</td><td>{{ b.publisher }}</td>
+              <td>{{ b.availableCopies }}</td>
+              <td><button class="btn small" @click="doBorrow(b)">借阅</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>我的借阅记录</h3>
+        <table>
+          <thead><tr><th>图书</th><th>借书时间</th><th>应还时间</th><th>还书时间</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr v-for="l in myBorrowRecords" :key="l.id">
+              <td>{{ l.bookTitle }}</td><td>{{ l.borrowDate }}</td><td>{{ l.dueDate }}</td><td>{{ l.returnDate || '-' }}</td>
+              <td><span class="tag" :class="statusClass(l)">{{ statusText(l) }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 还书（所有角色） -->
+      <section v-if="currentView === 'return'" class="panel">
+        <h2>还书</h2>
+        <div class="toolbar"><button class="btn" @click="loadUnreturned">刷新未还记录</button></div>
+        <table>
+          <thead><tr><th>图书</th><th>副本ID</th><th>借书时间</th><th>应还时间</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr v-for="l in unreturned" :key="l.id">
+              <td>{{ l.bookTitle }}</td><td>{{ l.bookCopyId }}</td><td>{{ l.borrowDate }}</td><td>{{ l.dueDate }}</td>
+              <td><span class="tag" :class="statusClass(l)">{{ statusText(l) }}</span></td>
+              <td><button class="btn small" @click="doReturn(l)">还书</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 个人借阅查询 -->
+      <section v-if="currentView === 'myLoans'" class="panel">
+        <h2>个人借阅查询</h2>
+        <div class="tabs">
+          <button :class="{active: myLoanMode === 'all'}" @click="myLoanMode = 'all'; loadMyLoans()">全部借阅</button>
+          <button :class="{active: myLoanMode === 'unreturned'}" @click="myLoanMode = 'unreturned'; loadMyLoans()">未还借阅</button>
+          <button :class="{active: myLoanMode === 'range'}" @click="myLoanMode = 'range'">日期范围</button>
+        </div>
+        <div class="toolbar" v-if="myLoanMode === 'range'">
+          <input type="datetime-local" v-model="myLoanStart"> 至
+          <input type="datetime-local" v-model="myLoanEnd">
+          <button class="btn" @click="loadMyLoans">查询</button>
+        </div>
+        <table>
+          <thead><tr><th>图书</th><th>借书时间</th><th>应还时间</th><th>还书时间</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr v-for="l in myLoanList" :key="l.id">
+              <td>{{ l.bookTitle }}</td><td>{{ l.borrowDate }}</td><td>{{ l.dueDate }}</td><td>{{ l.returnDate || '-' }}</td>
+              <td><span class="tag" :class="statusClass(l)">{{ statusText(l) }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 推荐图书（教师） -->
+      <section v-if="currentView === 'recommend'" class="panel">
+        <h2>推荐图书</h2>
+        <div class="form-grid">
+          <div class="field"><label>书名</label><input v-model="recommendForm.bookName"></div>
+          <div class="field"><label>作者</label><input v-model="recommendForm.author"></div>
+          <div class="field"><label>出版社</label><input v-model="recommendForm.publisher"></div>
+          <div class="field"><label>价格</label><input type="number" v-model.number="recommendForm.price"></div>
+        </div>
+        <div class="btn-row"><button class="btn" @click="submitRecommend">提交推荐</button></div>
+        <p v-if="recommendMessage" class="hint">{{ recommendMessage }}</p>
+        <div v-if="recommendResult && recommendResult.books && recommendResult.books.length">
+          <h3>图书馆已有相关书籍</h3>
+          <table>
+            <thead><tr><th>书名</th><th>作者</th><th>类型</th><th>出版社</th></tr></thead>
+            <tbody><tr v-for="b in recommendResult.books" :key="b.id"><td>{{ b.title }}</td><td>{{ b.author }}</td><td>{{ b.type }}</td><td>{{ b.publisher }}</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 审阅推荐图书（管理员） -->
+      <section v-if="currentView === 'reviewRecommend'" class="panel">
+        <h2>审阅推荐图书</h2>
+        <div class="toolbar"><button class="btn" @click="loadPendingRecommends">刷新</button></div>
+        <table>
+          <thead><tr><th>书名</th><th>作者</th><th>出版社</th><th>价格</th><th>推荐人</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr v-for="r in pendingRecommends" :key="r.id">
+              <td>{{ r.bookName }}</td><td>{{ r.author }}</td><td>{{ r.publisher }}</td><td>{{ r.price }}</td><td>{{ r.userName }}</td>
+              <td>
+                <button class="btn small" @click="approveRecommend(r)">加入图书列表</button>
+                <input v-model="r.rejectReason" placeholder="驳回理由" style="width:130px;">
+                <button class="btn small danger" @click="rejectRecommend(r)">驳回</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-mask" v-if="showUserModal" @click.self="showUserModal = false">
+    <div class="modal">
+      <h3>用户信息</h3>
+      <div class="detail" v-if="userDetail">
+        <div>姓名：{{ userDetail.name }}</div>
+        <div>角色：{{ userDetail.role }}</div>
+        <div>手机号：{{ userDetail.phone }}</div>
+        <div>专业：{{ userDetail.major }}</div>
+        <div>创建时间：{{ userDetail.createTime }}</div>
+        <div>最后登录：{{ userDetail.loginTime || '-' }}</div>
+        <div v-if="userDetail.role === '管理员'">权限等级：{{ userDetail.permissionLevel }}；入职时间：{{ userDetail.entryTime || '-' }}</div>
+        <div v-if="userDetail.role === '操作员'">职务：{{ userDetail.duty }}；区域：{{ userDetail.area }}</div>
+        <div v-if="userDetail.role === '学生'">年级：{{ userDetail.grade }}；学院：{{ userDetail.college }}</div>
+        <div v-if="userDetail.role === '教师'">学院：{{ userDetail.college }}；职称：{{ userDetail.title }}</div>
+      </div>
+      <div class="btn-row"><button class="btn" @click="showUserModal = false">关闭</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/vue.global.prod.js"></script>
+<script src="js/common.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

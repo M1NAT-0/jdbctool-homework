@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - 图书馆管理系统</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-box">
+    <h1>图书馆管理系统</h1>
+    <div class="subtitle">LibraryWeb2026 · 用户登录</div>
+    <div class="field">
+      <label>用户名</label>
+      <input id="name" type="text" placeholder="请输入用户名" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input id="password" type="password" placeholder="请输入密码" autocomplete="current-password">
+    </div>
+    <div class="field">
+      <label>验证码</label>
+      <div class="captcha-row">
+        <input id="captcha" type="text" placeholder="验证码" maxlength="4">
+        <img id="captchaImg" src="api/captcha" alt="验证码" title="点击刷新">
+      </div>
+    </div>
+    <div class="error-tip" id="tip"></div>
+    <div class="btn-row">
+      <button class="btn" id="submitBtn">登录</button>
+      <button class="btn secondary" id="resetBtn">重置</button>
+    </div>
+    <p class="hint">还没有账号？<a class="link" href="register.html">去注册</a></p>
+  </div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>
